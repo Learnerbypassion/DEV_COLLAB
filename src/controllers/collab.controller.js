@@ -62,7 +62,7 @@ async function getAllRecievedRequestController(req, res) {
                 status: "pending"
             })
             .populate(
-                "receiver", "name email profileImage"
+                "sender", "name email profileImage"
             )
             .populate(
                 "project", "title description"
