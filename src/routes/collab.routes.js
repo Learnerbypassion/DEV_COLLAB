@@ -1,3 +1,7 @@
+import express from "express"
+import projectMiddleware from "../middlewares/project.middleware.js"
+import authMiddleware from "../middlewares/auth.middleware.js"
+import collabController from "../controllers/collab.controller.js"
 /* 
 POST   /api/collabs/request                 → send a collaboration request to a user (body: receiverId, projectId, optional message)
 GET    /api/collabs/requests                → get all collaboration requests received by the logged-in user
@@ -9,6 +13,8 @@ GET    /api/collabs                          → get all active collaborations o
 GET    /api/collabs/:projectId              → get all active collaborators of a specific project
 DELETE /api/collabs/:collabId               → remove a collaborator from a project (only project owner)
 */
-import express from "express"
-
 const router = express.Router()
+router.post('/request', authMiddleware, projectMiddleware, collabController.collabReqController )
+router.get('/recieved-requests', authMiddleware, collabController.getAllRecievedRequestController)
+
+export default router
