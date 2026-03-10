@@ -1,4 +1,6 @@
 import collabModel from "../models/collab.model.js";
+import projectModel from "../models/project.model.js";
+import userModel from "../models/user.model.js";
 async function collabReqController(req, res) {
     try {
         const receiverId = req.project.owner._id.toString();
@@ -88,7 +90,37 @@ async function getAllRecievedRequestController(req, res) {
         });
     }
 }
+
+async function acceptCollabController(req, res) {
+    const collab = req.collab;
+    if(collab.status !== "pending"){
+        return res.status(400).json({
+            message: "Request already processed",
+            success: "flase"
+        });
+    }
+    collab.status = "accepted";
+    await collab.save();
+    const project = await projectModel
+    .findByIdAndUpdate(
+        collab.project._id,
+        {$addToSet : {collaborators: collab.receiver}}
+    )
+    const user = await userModel
+    .findByIdAndUpdate(
+        collab.sender,
+        {
+           $addToSet: { joinedProjects : collab.project._id} 
+        }
+    )
+    res.status(200).json({
+        message:"Collaboration request accepted",
+        success: "true",
+        data: project
+    });
+}
 export default {
     collabReqController,
-    getAllRecievedRequestController
+    getAllRecievedRequestController,
+    acceptCollabController
 }
