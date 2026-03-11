@@ -116,11 +116,30 @@ async function acceptCollabController(req, res) {
     res.status(200).json({
         message:"Collaboration request accepted",
         success: "true",
-        data: project
+        data: project,
+        user: user
     });
+}
+
+async function rejectCollabController(req, res ) {
+    const collab = req.collab;
+    if(collab.status !== "pending" ){
+        return res.status(400).json({
+            message: "Request already processed",
+            success: "flase"
+        });
+    }
+    collab.status = "rejected";
+    await collab.save()
+     res.status(200).json({
+        message:"Collaboration request rejected",
+        success: "true",
+        data: collab
+    });    
 }
 export default {
     collabReqController,
     getAllRecievedRequestController,
-    acceptCollabController
+    acceptCollabController,
+    rejectCollabController
 }
