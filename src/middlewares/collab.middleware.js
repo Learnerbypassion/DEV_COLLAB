@@ -6,11 +6,12 @@ const collabMiddleware = async (req, res, next) => {
    try {
 
       const { collabId } = req.params;
-
+      console.log(req.params);
+      
       if (!mongoose.Types.ObjectId.isValid(collabId)) {
          return res.status(400).json({
-            success: false,
-            message: "Invalid collaboration id"
+            message: "Invalid collaboration id",
+            success: false
          });
       }
 
@@ -20,23 +21,23 @@ const collabMiddleware = async (req, res, next) => {
 
       if (!collab) {
          return res.status(404).json({
-            success: false,
-            message: "Collaboration request not found"
+            message: "Collaboration request not found",
+            success: false
          });
       }
       const userId = req.user._id;
      if (!collab.project.owner.equals(userId)) {
          return res.status(403).json({
-            success: false,
-            message: "Only project owner can accept collaboration requests"
+            message: "Only project owner can access the collaboration requests",
+            success: false
          });
       }
       req.collab = collab;
       next();
    } catch (error) {
       res.status(500).json({
-         success: false,
-         message: "Server Error"
+         message: "Server Error",
+         success: false
       });
    }
 }
