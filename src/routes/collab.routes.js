@@ -12,7 +12,7 @@ PATCH  /api/collabs/:collabId/leave    DONE     → leave a project collaboratio
 GET    /api/collabs             DONE          → get all active collaborations of the logged-in user
 GET    /api/collabs/:projectId   DONE           → get all active collaborators of a specific project
 PATCH  /api/collabs/:collabId/complete      → mark the linked project as complete (only project owner)
-DELETE /api/collabs/:collabId               → remove a collaborator from a project (only project owner)
+DELETE /api/collabs/:collabId       DONE        → remove a collaborator from a project (only project owner)
 */
 const router = express.Router()
 router.post('/request', authMiddleware, projectMiddleware, collabController.collabReqController )
