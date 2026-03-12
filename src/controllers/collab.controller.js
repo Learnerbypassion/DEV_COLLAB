@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import collabModel from "../models/collab.model.js";
 import projectModel from "../models/project.model.js";
 import userModel from "../models/user.model.js";
@@ -72,7 +73,7 @@ async function getAllRecievedRequestController(req, res) {
             return res.status(200).json({
                 success: true,
                 message: "No pending requests",
-                data:[]
+                data: []
             });
         }
 
@@ -102,20 +103,20 @@ async function acceptCollabController(req, res) {
         }
         collab.status = "accepted";
         await collab.save();
-            const [project, user ] = await Promise.all([
-                projectModel
-            .findByIdAndUpdate(
-                collab.project._id,
-                { $addToSet: { collaborators: collab.sender } }
-            ) ,
+        const [project, user] = await Promise.all([
+            projectModel
+                .findByIdAndUpdate(
+                    collab.project._id,
+                    { $addToSet: { collaborators: collab.sender } }
+                ),
             userModel
-            .findByIdAndUpdate(
-                collab.sender,
-                {
-                    $addToSet: { joinedProjects: collab.project._id }
-                }
-            )
-            ])
+                .findByIdAndUpdate(
+                    collab.sender,
+                    {
+                        $addToSet: { joinedProjects: collab.project._id }
+                    }
+                )
+        ])
         res.status(200).json({
             message: "Collaboration request accepted",
             success: true,
@@ -150,7 +151,7 @@ async function rejectCollabController(req, res) {
         console.log(error);
         res.status(500).json({
             message: "Unable to reject the collaboration",
-            success:false
+            success: false
         })
     }
 }
@@ -201,11 +202,63 @@ async function getallactivecollaboratorsController(req, res) {
         });
     }
 }
+
+async function leaveProjectController(req, res) {
+    const joinedProjects = req.user.joinedProjects;
+    if (!joinedProjects ||  joinedProjects.length === 0) {
+        return res.status(400).json({
+            message: "You did not join in any project",
+            success: false
+        })
+    }
+    const { collabId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(collabId)) {
+        return res.status(400).json({
+            message: "Invalid collaboration id",
+            success: false
+        });
+    }
+    const collab = await collabModel
+        .findOne({
+            _id: collabId,
+            sender: req.user._id,
+            project: { $in: joinedProjects }
+        })
+        .populate("project", "title owner status")
+        .populate("sender", "name email joinedProjects")
+    if (!collab) {
+        return res.status(404).json({
+            message: "Collaboration request not found",
+            success: false
+        });
+    }
+    collab.status = "left";
+    await collab.save()
+    const [project, user] = await Promise.all([
+        projectModel
+            .updateOne(
+                { _id: collab.project },
+                { $pull: { collaborators: req.user._id } }
+            ),
+            userModel
+        .updateOne(
+            {_id: collab.sender},
+            {$pull: {joinedProjects: collab.project._id}}
+        )
+    ]);
+    res.status(200).json({
+        message: "Left the porject successfully",
+        project: project,
+        user: user,
+        success: true
+    })
+}
 export default {
     collabReqController,
     getAllRecievedRequestController,
     acceptCollabController,
     rejectCollabController,
     getJoinedProjectsController,
-    getallactivecollaboratorsController
+    getallactivecollaboratorsController,
+    leaveProjectController
 }

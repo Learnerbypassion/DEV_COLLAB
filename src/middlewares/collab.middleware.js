@@ -6,8 +6,6 @@ const collabMiddleware = async (req, res, next) => {
    try {
 
       const { collabId } = req.params;
-      console.log(req.params);
-      
       if (!mongoose.Types.ObjectId.isValid(collabId)) {
          return res.status(400).json({
             message: "Invalid collaboration id",

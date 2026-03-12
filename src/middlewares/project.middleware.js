@@ -2,8 +2,7 @@ import mongoose from "mongoose";
 import projectModel from "../models/project.model.js";
 
 const projectMiddleware = async (req, res, next) => {
-  const projectId = req.params.projectId || req.body.projectId || req.body || req.collab.project;
-
+  const projectId = req.params.projectId || req.body.projectId || req.body || req.collab.project ;
   if (!mongoose.Types.ObjectId.isValid(projectId)) {
     return res.status(400).json({
       status: "Failed",

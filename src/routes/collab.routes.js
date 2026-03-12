@@ -19,7 +19,9 @@ router.post('/request', authMiddleware, projectMiddleware, collabController.coll
 router.get('/received-requests', authMiddleware, collabController.getAllRecievedRequestController)
 router.patch('/:collabId/accept', authMiddleware, collabMiddleware, collabController.acceptCollabController)
 router.patch('/:collabId/reject', authMiddleware, collabMiddleware, collabController.rejectCollabController)
-router.get("/joined", authMiddleware, collabController.getJoinedProjectsController)
-router.get("/project/:projectId", authMiddleware, projectMiddleware, collabController.getallactivecollaboratorsController)
+router.patch('/:collabId/leave', authMiddleware, collabController.leaveProjectController)
+router.get('/joined', authMiddleware, collabController.getJoinedProjectsController)
+router.get('/project/:projectId', authMiddleware, projectMiddleware, collabController.getallactivecollaboratorsController)
+
 
 export default router
