@@ -26,7 +26,7 @@ const collabMiddleware = async (req, res, next) => {
       const userId = req.user._id;
      if (!collab.project.owner.equals(userId)) {
          return res.status(403).json({
-            message: "Only project owner can access the collaboration requests",
+            message: "Only project owner can access the collaborations",
             success: false
          });
       }
