@@ -248,8 +248,6 @@ async function leaveProjectController(req, res) {
     ]);
     res.status(200).json({
         message: "Left the porject successfully",
-        project: project,
-        user: user,
         success: true
     })
 }
