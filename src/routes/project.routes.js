@@ -10,6 +10,7 @@ GET    /api/projects        → get all projects || done
 GET    /api/projects/:id    → get single project || done
 PATCH  /api/projects/:id    → update project ||Done
 DELETE /api/projects/:id    → delete project ||Done
+PATCH  /api/collabs/:collabId/complete      → mark the linked project as complete (only project owner)
 */
 
 router.get('/', authMiddleware, projectController.getAllProjectController)
