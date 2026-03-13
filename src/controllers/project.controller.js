@@ -89,8 +89,8 @@ async function getProjectByIdController(req, res) {
             })
         }
         const project = await projectModel
-        .findById(projectId)
-        .populate("owner", "name email");
+            .findById(projectId)
+            .populate("owner", "name email");
 
         if (!project) {
             return res.status(404).json({
@@ -101,14 +101,14 @@ async function getProjectByIdController(req, res) {
 
         res.status(200).json({
             message: "Project fetched successfully",
-            status:"Success",
+            status: "Success",
             project
         })
     } catch (err) {
         console.error(err)
         return res.status(500).json({
             message: "Error fetching project",
-            status:"Failed",
+            status: "Failed",
             error: err.message
         })
     }
@@ -187,10 +187,50 @@ async function deleteProjectController(req, res) {
         });
     }
 }
+
+async function searchProjectController(req, res) {
+    try {
+        const { query } = req.query;  
+        if (!query) {
+            return res.status(400).json({
+                success: false,
+                message: "Search query is required"
+            });
+        }
+        const projects = await projectModel
+            .find(
+                { $text: { $search: query } },
+                { score: { $meta: "textScore" } }
+            )
+            .sort({ score: { $meta: "textScore" } })
+            .populate("owner", "name email github profileImage")
+        if (!projects.length) {
+            return res.status(200).json({
+                success: true,
+                message: "No projects found",
+                count: 0,
+                projects: []
+            });
+        }
+        return res.status(200).json({
+            message:"Fetched Result",
+            count: projects.length,
+            projects,
+            success: true
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Error searching projects",
+            error: error.message
+        });
+    }
+}
 export default {
     createProjectController,
     getAllProjectController,
     getProjectByIdController,
     updateProjectController,
-    deleteProjectController
+    deleteProjectController,
+    searchProjectController
 } 
